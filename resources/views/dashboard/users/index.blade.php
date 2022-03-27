@@ -45,6 +45,7 @@
             <th>Last Name</th>
             <th>Email</th>
             <th>Telephone</th>
+            <th>Last Login</th>
             <th>Roles</th>
             <th>Actions</th>
         </tr>
@@ -57,6 +58,7 @@
                 <td>{{ $user->last_name }}</td>
                 <td>{{ $user->email }}</td>
                 <td>{{ $user->telephone }}</td>
+                <td>{{ $user->last_login }}</td>
                 <td>
                     @foreach( $user->getRoleNames() as $role)
                         {{ $role }}

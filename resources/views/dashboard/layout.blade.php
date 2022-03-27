@@ -37,6 +37,17 @@
         </div>
 
     @endif
+
+    @if( session('error'))
+        <div class="pt-12">
+            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                <div class="bg-indigo-100 rounded-lg py-5 px-6 text-base text-red-700" role="alert">
+                    {{ session('error') }}
+                </div>
+            </div>
+        </div>
+
+    @endif
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">

@@ -71,16 +71,20 @@ class UserController extends Controller
      */
     public function store(StoreRequest $request)
     {
-        $data = $request->validated();
+        try{
+            $data = $request->validated();
 
-        $data['password'] = Hash::make($data['password']);
-        $is_created = $user = User::create($data);
-        $user->assignRole($data['roles']);
+            $data['password'] = Hash::make($data['password']);
+            $is_created = $user = User::create($data);
+            $user->assignRole($data['roles']);
 
-        if ($is_created) {
-            Mail::send(new CrudUser($user, 'create User'));
+            if ($is_created) {
+                Mail::send(new CrudUser($user, 'create User'));
+            }
+            return to_route('users.index')->with('status', 'User Created');
+        }catch (\Exception $e){
+            return to_route('users.index')->with('error', $e->getMessage());
         }
-        return to_route('users.index')->with('status', 'User Created');
     }
 
     /**
@@ -115,21 +119,26 @@ class UserController extends Controller
      */
     public function update(UpdateRequest $request, User $user)
     {
-        $data = $request->validated();
+        try{
+            $data = $request->validated();
 
-        if(isset($data['password'])){
-            $data['password'] = Hash::make($data['password']);
+            if(isset($data['password'])){
+                $data['password'] = Hash::make($data['password']);
+            }
+
+            $is_updated = $user->update($data);
+
+            $user->syncRoles($data['roles']);
+
+            if ($is_updated) {
+                Mail::send(new CrudUser($user, 'Update User'));
+            }
+
+            return to_route('users.index')->with('status', 'User Updated');
+        }catch (\Exception $e){
+            return to_route('users.index')->with('error', $e->getMessage());
         }
 
-        $is_updated = $user->update($data);
-
-        $user->syncRoles($data['roles']);
-
-        if ($is_updated) {
-            Mail::send(new CrudUser($user, 'Update User'));
-        }
-
-        return to_route('users.index')->with('status', 'User Updated');
     }
 
     /**
@@ -140,10 +149,15 @@ class UserController extends Controller
      */
     public function destroy(User $user)
     {
-        $is_deleted = $user->delete();
-        if ($is_deleted) {
-            Mail::send(new CrudUser($user, 'Delete User'));
+        try {
+            $is_deleted = $user->delete();
+            if ($is_deleted) {
+                Mail::send(new CrudUser($user, 'Delete User'));
+            }
+            return to_route('users.index')->with('status', 'User deleted');
+        }catch (\Exception $e){
+            return to_route('users.index')->with('error', $e->getMessage());
         }
-        return to_route('users.index')->with('status', 'User deleted');
+
     }
 }

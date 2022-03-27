@@ -56,13 +56,18 @@ class RolController extends Controller
      */
     public function store(StoreRequest $request)
     {
-        $is_created = $role = Role::create(['name' => $request->validated()['name']]);
-        $role->syncPermissions($request->validated()['permission']);
+        try{
+            $is_created = $role = Role::create(['name' => $request->validated()['name']]);
+            $role->syncPermissions($request->validated()['permission']);
 
-        if( $is_created) {
-            Mail::send(new CrudRole($role, 'Store Rol'));
+            if( $is_created) {
+                Mail::send(new CrudRole($role, 'Store Rol'));
+            }
+            return to_route('roles.index')->with('status', 'Role created');
+        }catch (\Exception $e){
+            return to_route('roles.index')->with('error', $e->getMessage());
         }
-        return to_route('roles.index')->with('status', 'Role created');
+
     }
 
     /**
@@ -99,16 +104,19 @@ class RolController extends Controller
      */
     public function update(UpdateRequest $request,Role $role)
     {
+        try {
+            $role->name = $request->validated()['name'];
+            $is_updated = $role->update();
+            $role->syncPermissions($request->validated()['permission']);
 
-        $role->name = $request->validated()['name'];
-        $is_updated = $role->update();
-        $role->syncPermissions($request->validated()['permission']);
+            if( $is_updated) {
+                Mail::send(new CrudRole($role, 'Updated Rol'));
+            }
 
-        if( $is_updated) {
-            Mail::send(new CrudRole($role, 'Updated Rol'));
+            return to_route('roles.index')->with('status', 'Rol updated');
+        }catch (\Exception $e){
+            return to_route('roles.index')->with('error', $e->getMessage());
         }
-
-        return to_route('roles.index')->with('status', 'Rol updated');
     }
 
     /**
@@ -119,12 +127,17 @@ class RolController extends Controller
      */
     public function destroy(Role $role)
     {
-        $is_deleted = $role->delete();
+        try {
+            $is_deleted = $role->delete();
 
-        if( $is_deleted) {
-            Mail::send(new CrudRole($role, 'Deleted Rol'));
+            if( $is_deleted) {
+                Mail::send(new CrudRole($role, 'Deleted Rol'));
+            }
+
+            return to_route('roles.index')->with('status', 'Rol deleted');
+        }catch (\Exception $e) {
+            return to_route('roles.index')->with('error', $e->getMessage());
         }
 
-        return to_route('roles.index')->with('status', 'Rol deleted');
     }
 }

@@ -11,6 +11,10 @@
 - **php artisan db:seed --class=PermissionTableSeeder**
 - **php artisan db:seed --class=CreateAdminUserSeeder**
 
+
+user: admin@gmail.com
+password: 12345678
+
 ##Requirements
 PHP 8.0.2 or >
 
